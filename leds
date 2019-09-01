@@ -1,0 +1,63 @@
+#!/usr/bin/python3 
+import pigpio
+import sys
+import argparse
+from PyQt5.QtWidgets import QMainWindow, QApplication, QColorDialog
+
+RED_PIN     = 12
+GREEN_PIN   = 13
+BLUE_PIN    = 19
+LED_FREQ = 800
+
+class Leds:
+    def __init__(self):
+        
+        self.pi = pigpio.pi()
+
+    def get_color(self):
+        self.app = QApplication(sys.argv)
+        color = QColorDialog.getColor().getRgb()
+        rgbDutyCycle = color
+        print(rgbDutyCycle)
+        return rgbDutyCycle
+
+    def input_color(self):
+        colRed      = int(input("Input red colour: "))
+        colGreen    = int(input("Input green colour: "))
+        colBlue     = int(input("Input blue colour: "))
+        return [colRed, colGreen, colBlue]
+
+    def set_color(self, color, freq=None):
+        # self.pi.hardware_PWM(RED_PIN,    LED_FREQ, color[0])
+        # self.pi.hardware_PWM(GREEN_PIN,  LED_FREQ, color[1])
+        # self.pi.hardware_PWM(BLUE_PIN,   LED_FREQ, color[2])
+        freq = LED_FREQ if freq is None else freq
+        self.pi.set_PWM_frequency(RED_PIN, freq)
+        self.pi.set_PWM_frequency(GREEN_PIN, freq)
+        self.pi.set_PWM_frequency(BLUE_PIN, freq)
+
+        self.pi.set_PWM_dutycycle(RED_PIN, color[0])
+        self.pi.set_PWM_dutycycle(GREEN_PIN, color[1])
+        self.pi.set_PWM_dutycycle(BLUE_PIN, color[2])
+        
+    def stop(self):
+        self.set_color([0, 0, 0], freq=0)
+
+    def main(self):
+        parser = argparse.ArgumentParser()
+        parser.add_argument('-i', '--input_manual', action='store_true')
+        parser.add_argument('-s', '--stop', action='store_true')
+        parser.add_argument('-m', '--manual', nargs=3, type=int)
+        args = parser.parse_args()
+
+        if(args.input_manual):
+            self.set_color(self.input_color())
+        elif(args.manual):
+            self.set_color(args.manual)
+        elif(args.stop):
+            self.stop()
+        else:
+            self.set_color(self.get_color())
+
+instance = Leds()
+instance.main()
