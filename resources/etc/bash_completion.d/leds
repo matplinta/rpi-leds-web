@@ -1,0 +1,21 @@
+_leds() 
+{
+    local cur prev opts
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    opts="-p -h -i -s -m"
+
+    case "${prev}" in 
+    	-p)
+	     	local colors=$(for x in `cat /home/pi/Documents/colours.leds | cut -f1 -d' ' | tr '\n' ' '`; do echo ${x} ; done )	
+    	     	COMPREPLY=( $(compgen -W "${colors}" -- ${cur}) )
+        	return 0
+		;;
+	*)
+		;;
+    esac
+    COMPREPLY=($(compgen -W "${opts}" -- ${cur}))
+    return 0
+}
+complete -F _leds leds
