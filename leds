@@ -7,8 +7,8 @@ from PyQt5.QtWidgets import QMainWindow, QApplication, QColorDialog
 RED_PIN     = 19
 GREEN_PIN   = 13
 BLUE_PIN    = 12
-LED_FREQ = 800
-FILEPATH = "/home/pi/Documents/colours.leds"
+LED_FREQ    = 800
+COLOR_CONFIG_FILE = "/home/pi/.config/leds/colours.conf"
 
 def parse_file(filename):
     with open(filename, "r") as fp:
@@ -51,12 +51,18 @@ class Leds:
         self.pi.set_PWM_frequency(GREEN_PIN, freq)
         self.pi.set_PWM_frequency(BLUE_PIN, freq)
 
-        self.pi.set_PWM_dutycycle(RED_PIN, color[0])
-        self.pi.set_PWM_dutycycle(GREEN_PIN, color[1])
-        self.pi.set_PWM_dutycycle(BLUE_PIN, color[2])
+        if isinstance(color, str):
+            hex_color = color.lstrip('#')
+            color = tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
+        elif isinstance(color, (list, tuple)):
+            self.pi.set_PWM_dutycycle(RED_PIN, color[0])
+            self.pi.set_PWM_dutycycle(GREEN_PIN, color[1])
+            self.pi.set_PWM_dutycycle(BLUE_PIN, color[2])
+        else:
+            raise ValueError("Color is neither a string nor a 3 element list or tuple!")
         
     def predefined(self, color):
-        colorDict = parse_file(FILEPATH)
+        colorDict = parse_file(COLOR_CONFIG_FILE)
         if (color == "none"):  
             for key in colorDict.keys():
                 print(key)
@@ -72,6 +78,7 @@ class Leds:
         parser.add_argument('-i', '--input_manual', action='store_true')
         parser.add_argument('-s', '--stop', action='store_true')
         parser.add_argument('-m', '--manual', nargs=3, type=int)
+        parser.add_argument('--hex', type=str)
         parser.add_argument('-p', '--predefined', nargs='?', const="none")
         args = parser.parse_args()
 
@@ -79,6 +86,8 @@ class Leds:
             self.set_color(self.input_color())
         elif(args.manual):
             self.set_color(args.manual)
+        elif(args.hex):
+            self.set_color(args.hex)
         elif(args.stop):
             self.stop()
         elif(args.predefined):
