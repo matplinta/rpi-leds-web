@@ -9,5 +9,4 @@ cp ./leds /usr/local/bin/leds
 chmod +x /usr/local/bin/leds
 
 rsync -R ./resources/colours.conf /home/pi/.config/leds/colours.conf 
-
 cp ./resources/etc/bash_completion.d/leds /etc/bash_completion.d/leds
