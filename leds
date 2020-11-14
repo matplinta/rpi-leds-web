@@ -50,16 +50,18 @@ class Leds:
         self.pi.set_PWM_frequency(RED_PIN, freq)
         self.pi.set_PWM_frequency(GREEN_PIN, freq)
         self.pi.set_PWM_frequency(BLUE_PIN, freq)
-
+        print(color)
         if isinstance(color, str):
             hex_color = color.lstrip('#')
             color = tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
+            print(color)
         elif isinstance(color, (list, tuple)):
-            self.pi.set_PWM_dutycycle(RED_PIN, color[0])
-            self.pi.set_PWM_dutycycle(GREEN_PIN, color[1])
-            self.pi.set_PWM_dutycycle(BLUE_PIN, color[2])
+            pass
         else:
             raise ValueError("Color is neither a string nor a 3 element list or tuple!")
+        self.pi.set_PWM_dutycycle(RED_PIN, color[0])
+        self.pi.set_PWM_dutycycle(GREEN_PIN, color[1])
+        self.pi.set_PWM_dutycycle(BLUE_PIN, color[2])
         
     def predefined(self, color):
         colorDict = parse_file(COLOR_CONFIG_FILE)

@@ -1,7 +1,7 @@
 
-var colorPicker = new iro.ColorPicker("#demoWheel", {
-  width: 290,
-  height: 360,
+var colorPicker = new iro.ColorPicker("#colorWheel", {
+  width: 500,
+  height: 570,
   handleRadius: 8,
   handleUrl: null,
   // handleUrl: "#test",
@@ -31,7 +31,6 @@ var colorPicker = new iro.ColorPicker("#demoWheel", {
 // colorPicker.on('mount', function() {
 //   console.log('mount')
 // });
-// const { exec } = require("child_process");
 
 // colorPicker.on('color:change', function() {
 //   console.log('color:change');
@@ -47,14 +46,13 @@ var colorPicker = new iro.ColorPicker("#demoWheel", {
 //   console.log('input:start');
 // })
 
-colorPicker.on('input:move', function(color) {
-  console.log(color.hexString)
-  $.get('/color', { hex : color.hexString });
-//   console.log('input:move');
-})
+// colorPicker.on('input:move', function(color) {
+//   console.log(color.hexString)
+//   $.get('/color', { hex : color.hexString });
+// //   console.log('input:move');
+// })
 
 colorPicker.on('input:end', function(color) {
   console.log(color.hexString)
   $.get('/color', { hex : color.hexString });
-//   console.log('input:end');
 })
