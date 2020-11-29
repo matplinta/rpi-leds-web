@@ -40,7 +40,7 @@ Run the command via `node index.js`.
 
 Enter the Raspberry Pi IP address (or hostname, if you have DNS server configured) and select the desired color.
 
-![img](resources/web_ui.png)
+![img](resources/web_ui.jpg)
 
 ### Configuration of the NodeJS app
 #### Enable running the app as daemonized and upon system startup
