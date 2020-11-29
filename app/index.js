@@ -22,6 +22,28 @@ app.get("/stop", (req, res) => {
   });
 });
 
+app.get("/christmas", (req, res) => {
+    var command = spawn('/usr/local/bin/leds', ["--christmas"]);
+    command.on('close', function(code) {
+        console.log(`child process exited with code ${code}`);
+    if (code === 0)
+        res.sendStatus(200)
+    else
+        res.sendStatus(500);
+  });
+});
+
+app.get("/party", (req, res) => {
+    var command = spawn('/usr/local/bin/leds', ["--party"]);
+    command.on('close', function(code) {
+        console.log(`child process exited with code ${code}`);
+    if (code === 0)
+        res.sendStatus(200)
+    else
+        res.sendStatus(500);
+  });
+});
+
 app.get("/color", (req, res) => {
     console.log(req.query.hex);
     var command = spawn('/usr/local/bin/leds', [ "--hex", req.query.hex ]);

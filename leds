@@ -1,8 +1,12 @@
-#!/usr/bin/python3 
+#!/usr/bin/env python3 
 import pigpio
 import sys
 import argparse
+import random
+import types
 from PyQt5.QtWidgets import QMainWindow, QApplication, QColorDialog
+from time import sleep
+from functools import reduce
 
 RED_PIN     = 19
 GREEN_PIN   = 13
@@ -24,45 +28,187 @@ def parse_file(filename):
                 continue                
     return colorDict
 
+class Sequence:
+    colors = {}
+    def __init__(self, leds_instance):
+        self.leds = leds_instance
+    
+    def play(self, delay):
+        pass
+
+class ChristmasSequence(Sequence):
+    colors = {
+        "darkerred":   (77, 0, 1),
+        "darkred":     (120, 0, 2),
+        "red":         (170, 0, 2),
+        "white":       (200, 200, 200),
+        "gold":        (135, 74, 0),
+        "green":       (9, 255, 0),
+        "darkgreen":   (5, 140, 0),
+        "darkergreen": (2, 48, 0)
+    }
+
+
+    def play(self, delay=15):
+        color_names = tuple(ChristmasSequence.colors.keys())
+        color = "darkgreen"
+        self.leds.set_color(ChristmasSequence.colors[color])
+        while True:  
+            sleep(delay)
+            color_new = random.choice(color_names)
+            while color == color_new or ("green" in color and "green" in color_new) or \
+            ("red" in color and "red" in color_new):
+                color_new = random.choice(color_names)
+
+            color_value = ChristmasSequence.colors[color]
+            color_new_value = ChristmasSequence.colors[color_new]
+            self.leds.smooth_transition(color_value, color_new_value)
+            color = color_new
+
+
+class PartySequence(Sequence):
+    colors = {}
+
+    def play(self, delay=1):
+        color = Leds.rand_color()
+        self.leds.set_color(color)
+        while True:  
+            sleep(random.random())
+            color_new = Leds.rand_color(max_pool=255)
+            # self.leds.set_color(color_new)
+            self.leds.fast_transition(color, color_new, delay=0.001, delta=5)
+            color = color_new
+
+
+
 class Leds:
     def __init__(self):
-        
         self.pi = pigpio.pi()
 
-    def get_color(self):
-        self.app = QApplication(sys.argv)
+    @staticmethod
+    def rand_color(max_pool=400):
+        red = random.randint(0, 255)
+        if max_pool - red >= 0:
+            max_pool = max_pool - red
+        elif max_pool - red < 0: 
+            red = max_pool
+            max_pool = 0
+        green = random.randint(0, 255)
+        if max_pool - green >= 0:
+            max_pool = max_pool - green
+        else:
+            green = max_pool
+            max_pool = 0
+        blue = random.randint(0, 255)
+        if max_pool - blue <= 0:
+            blue = max_pool
+        return (red, green, blue)
+
+
+    @staticmethod
+    def validate_color_format(color):
+        if isinstance(color, str):
+            hex_color = color.lstrip('#')
+            color = tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
+        elif isinstance(color, (list, tuple)):
+            pass
+        else:
+            raise ValueError("Color is neither a string nor a 3 element list or tuple!")
+        return color
+
+    @staticmethod
+    def get_color():
+        app = QApplication(sys.argv)
         color = QColorDialog.getColor().getRgb()
         rgbDutyCycle = color
         print(rgbDutyCycle)
         return rgbDutyCycle
 
-    def input_color(self):
+    @staticmethod
+    def input_color():
         colRed      = int(input("Input red colour: "))
         colGreen    = int(input("Input green colour: "))
         colBlue     = int(input("Input blue colour: "))
         return [colRed, colGreen, colBlue]
 
+
     def set_color(self, color, freq=None):
         # self.pi.hardware_PWM(RED_PIN,    LED_FREQ, color[0])
         # self.pi.hardware_PWM(GREEN_PIN,  LED_FREQ, color[1])
         # self.pi.hardware_PWM(BLUE_PIN,   LED_FREQ, color[2])
-        freq = LED_FREQ if freq is None else freq
-        self.pi.set_PWM_frequency(RED_PIN, freq)
-        self.pi.set_PWM_frequency(GREEN_PIN, freq)
-        self.pi.set_PWM_frequency(BLUE_PIN, freq)
-        print(color)
-        if isinstance(color, str):
-            hex_color = color.lstrip('#')
-            color = tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
-            print(color)
-        elif isinstance(color, (list, tuple)):
-            pass
-        else:
-            raise ValueError("Color is neither a string nor a 3 element list or tuple!")
-        self.pi.set_PWM_dutycycle(RED_PIN, color[0])
+
+        # freq = LED_FREQ if freq is None else freq
+        # self.pi.set_PWM_frequency(RED_PIN, freq)
+        # self.pi.set_PWM_frequency(GREEN_PIN, freq)
+        # self.pi.set_PWM_frequency(BLUE_PIN, freq)
+
+        color = Leds.validate_color_format(color)
+
+        self.pi.set_PWM_dutycycle(RED_PIN,   color[0])
         self.pi.set_PWM_dutycycle(GREEN_PIN, color[1])
-        self.pi.set_PWM_dutycycle(BLUE_PIN, color[2])
-        
+        self.pi.set_PWM_dutycycle(BLUE_PIN,  color[2])
+
+    
+    def smooth_transition(self, color, color_new, delay=0.03):
+        while(color[0] != color_new[0] or color[1] != color_new[1] or color[2] != color_new[2]):
+            red, green, blue = color
+            if color[0] < color_new[0]:
+                red = color[0] + 1
+            if color[0] > color_new[0]:
+                red = color[0] - 1
+
+            if color[1] < color_new[1]:
+                green = color[1] + 1
+            if color[1] > color_new[1]:
+                green = color[1] - 1
+
+            if color[2] < color_new[2]:
+                blue = color[2] + 1
+            if color[2] > color_new[2]:
+                blue = color[2] - 1
+
+            temp_color = (red, green, blue)
+            self.set_color(temp_color)
+            if delay != 0:
+                sleep(delay)
+            self.smooth_transition(temp_color, color_new)
+            break
+
+
+    def fast_transition(self, color, color_new, delay=0.03, delta=5):
+        is_far = lambda x, y: abs(x - y) > delta
+        while is_far(color[0], color_new[0]) or is_far(color[1], color_new[1]) or is_far(color[2], color_new[2]):
+            red, green, blue = color
+            if color[0] < color_new[0]:
+                red = color[0] + delta
+            if color[0] > color_new[0]:
+                red = color[0] - delta
+
+            if color[1] < color_new[1]:
+                green = color[1] + delta
+            if color[1] > color_new[1]:
+                green = color[1] - delta
+
+            if color[2] < color_new[2]:
+                blue = color[2] + delta
+            if color[2] > color_new[2]:
+                blue = color[2] - delta
+
+            def check_range_overflow(val):
+                if val > 255:
+                    return 255
+                if val < 0:
+                    return 0
+                else:
+                    return val
+            temp_color = tuple(map(check_range_overflow, [red, green, blue]))
+            print(temp_color)
+            self.set_color(temp_color)
+            sleep(delay)
+            self.fast_transition(temp_color, color_new)
+            break
+
+
     def predefined(self, color):
         colorDict = parse_file(COLOR_CONFIG_FILE)
         if (color == "none"):  
@@ -72,30 +218,38 @@ class Leds:
             print(colorDict[color])
             self.set_color(colorDict[color])
 
+
     def stop(self):
         self.set_color([0, 0, 0], freq=0)
 
-    def main(self):
-        parser = argparse.ArgumentParser()
-        parser.add_argument('-i', '--input_manual', action='store_true')
-        parser.add_argument('-s', '--stop', action='store_true')
-        parser.add_argument('-m', '--manual', nargs=3, type=int)
-        parser.add_argument('--hex', type=str)
-        parser.add_argument('-p', '--predefined', nargs='?', const="none")
-        args = parser.parse_args()
 
-        if(args.input_manual):
-            self.set_color(self.input_color())
-        elif(args.manual):
-            self.set_color(args.manual)
-        elif(args.hex):
-            self.set_color(args.hex)
-        elif(args.stop):
-            self.stop()
-        elif(args.predefined):
-            self.predefined(args.predefined)
-        else:
-            self.set_color(self.get_color())
+if __name__ == "__main__":
+    leds = Leds()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-i', '--input_manual', action='store_true')
+    parser.add_argument('-s', '--stop', action='store_true')
+    parser.add_argument('-c', '--christmas', action='store_true')
+    parser.add_argument('--party', action='store_true')
+    parser.add_argument('-r', '--rgb', nargs=3, type=int)
+    parser.add_argument('--hex', type=str)
+    parser.add_argument('-p', '--predefined', nargs='?', const="none")
+    args = parser.parse_args()
 
-instance = Leds()
-instance.main()
+    if(args.input_manual):
+        leds.set_color(Leds.input_color())
+    elif(args.rgb):
+        leds.set_color(args.rgb)
+    elif(args.hex):
+        leds.set_color(args.hex)
+    elif(args.stop):
+        leds.stop()
+    elif(args.predefined):
+        leds.predefined(args.predefined)
+    elif(args.christmas):
+        seq = ChristmasSequence(leds)
+        seq.play()
+    elif(args.party):
+        seq = PartySequence(leds)
+        seq.play()
+    else:
+        leds.set_color(Leds.get_color())
