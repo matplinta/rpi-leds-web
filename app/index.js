@@ -11,6 +11,16 @@ app.use(express.static(__dirname));
 //     // res.sendFile(path.join(__dirname+'/index.html'));
 //     // res.render("index", { title: "Home" });
 // });
+app.get("/stop", (req, res) => {
+    var command = spawn('/usr/local/bin/leds', ["--stop"]);
+    command.on('close', function(code) {
+        console.log(`child process exited with code ${code}`);
+    if (code === 0)
+        res.sendStatus(200)
+    else
+        res.sendStatus(500);
+  });
+});
 
 app.get("/color", (req, res) => {
     console.log(req.query.hex);

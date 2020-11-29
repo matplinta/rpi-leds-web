@@ -1,0 +1,18 @@
+h1 {
+    text-align: center;
+}
+
+.center {
+    margin: auto;
+    padding-left: 10px
+    padding-right: 10px
+}
+
+#colorWheel {
+    width: 345px;
+}
+
+div {
+    padding-top: 5px;
+    padding-bottom: 5px;
+}

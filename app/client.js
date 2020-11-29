@@ -1,7 +1,7 @@
 
 var colorPicker = new iro.ColorPicker("#colorWheel", {
-  width: 500,
-  height: 570,
+  width: 340,
+  height: 370,
   handleRadius: 8,
   handleUrl: null,
   // handleUrl: "#test",
@@ -56,3 +56,15 @@ colorPicker.on('input:end', function(color) {
   console.log(color.hexString)
   $.get('/color', { hex : color.hexString });
 })
+
+function turn_off() {
+  $.get('/stop');
+}
+
+function christmas_mode() {
+  $.get('/christmas');
+}
+
+function party_mode() {
+  $.get('/party');
+}
