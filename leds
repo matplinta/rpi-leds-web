@@ -246,6 +246,9 @@ if __name__ == "__main__":
     parser.add_argument('-p', '--predefined', nargs='?', const="none")
     args = parser.parse_args()
 
+    if not (args.party or args.christmas):
+        Leds.clear_sequences()
+
     if(args.input_manual):
         leds.set_color(Leds.input_color())
     elif(args.rgb):
