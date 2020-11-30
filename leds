@@ -88,8 +88,12 @@ class Leds:
         result = subprocess.run(['pgrep', '-f', '-c', 'leds --christmas|--party'], 
             stdout=subprocess.PIPE).stdout.decode('utf-8')
         if(int(result) >= 2):
-            os.system("pkill -f --oldest 'leds --christmas|--party'")
+            Leds.clear_sequences()
         self.pi = pigpio.pi()
+
+    @staticmethod
+    def clear_sequences():
+        os.system("pkill -f --oldest 'leds --christmas|--party'")
 
     @staticmethod
     def rand_color(max_pool=400):
@@ -225,6 +229,7 @@ class Leds:
 
 
     def stop(self):
+        Leds.clear_sequences()
         self.set_color([0, 0, 0], freq=0)
 
 
