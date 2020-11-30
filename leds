@@ -4,6 +4,8 @@ import sys
 import argparse
 import random
 import types
+import os
+import subprocess
 from PyQt5.QtWidgets import QMainWindow, QApplication, QColorDialog
 from time import sleep
 from functools import reduce
@@ -83,6 +85,10 @@ class PartySequence(Sequence):
 
 class Leds:
     def __init__(self):
+        result = subprocess.run(['pgrep', '-f', '-c', 'leds --christmas|--party'], 
+            stdout=subprocess.PIPE).stdout.decode('utf-8')
+        if(int(result) >= 2):
+            os.system("pkill -f --oldest 'leds --christmas|--party'")
         self.pi = pigpio.pi()
 
     @staticmethod
@@ -202,7 +208,6 @@ class Leds:
                 else:
                     return val
             temp_color = tuple(map(check_range_overflow, [red, green, blue]))
-            print(temp_color)
             self.set_color(temp_color)
             sleep(delay)
             self.fast_transition(temp_color, color_new)
@@ -225,10 +230,11 @@ class Leds:
 
 if __name__ == "__main__":
     leds = Leds()
+
     parser = argparse.ArgumentParser()
     parser.add_argument('-i', '--input_manual', action='store_true')
     parser.add_argument('-s', '--stop', action='store_true')
-    parser.add_argument('-c', '--christmas', action='store_true')
+    parser.add_argument('--christmas', action='store_true')
     parser.add_argument('--party', action='store_true')
     parser.add_argument('-r', '--rgb', nargs=3, type=int)
     parser.add_argument('--hex', type=str)
