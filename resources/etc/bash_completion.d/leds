@@ -8,7 +8,7 @@ _leds()
 
     case "${prev}" in 
     	-p)
-	     	local colors=$(for x in `cat /home/pi/.config/leds/colours.conf  | cut -f1 -d' ' | tr '\n' ' '`; do echo ${x} ; done )	
+	     	local colors=$(for x in `cat /home/pi/.config/leds/favcolors.conf  | cut -f1 -d' ' | tr '\n' ' '`; do echo ${x} ; done )	
     	     	COMPREPLY=( $(compgen -W "${colors}" -- ${cur}) )
         	return 0
 		;;

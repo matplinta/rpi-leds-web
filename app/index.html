@@ -10,7 +10,7 @@
     <script src="/lib/iro.js"></script>
     <script src="/client.js"></script>
   </head>
-  <body>
+  <body onload="buildTable()">
     <div>
         <h1>Choose color</h1>
         <div class="center">
@@ -19,6 +19,12 @@
             <button type="button" class="btn btn-danger  btn-lg" onclick="turn_off()">Turn off</button>
         </div>
         <div id="colorWheel" class="center"></div>
+        <div style="margin-top: 30px;" class="center">
+          <form id="addNewColor" class="form-wrapper cf">
+            <input id="addNewColorInput" type="text" placeholder="name..." required>
+            <button onclick="submitForm()" type="button">Add color</button>
+          </form></div>
+        <div id="favouriteColorTable"></div>
     </div>
   </body>
 </html>

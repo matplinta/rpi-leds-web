@@ -14,7 +14,7 @@ RED_PIN     = 19
 GREEN_PIN   = 13
 BLUE_PIN    = 12
 LED_FREQ    = 800
-COLOR_CONFIG_FILE = "/home/pi/.config/leds/colours.conf"
+COLOR_CONFIG_FILE = "/home/pi/.config/leds/favcolors.conf"
 
 def parse_file(filename):
     with open(filename, "r") as fp:

@@ -1,8 +1,10 @@
 const express = require("express");
+const fs = require("fs");
 const { spawn } = require('child_process');
 
 const app = express();
 const port = process.env.PORT || "8000";
+const favColorsConfigPath = '/home/pi/.config/leds/favcolors.json '
 
 app.use(express.static(__dirname));
 
@@ -44,6 +46,37 @@ app.get("/party", (req, res) => {
   });
 });
 
+app.get("/getFavColors", (req, res) => {
+    jsonReader(favColorsConfigPath, (err, colors) => {
+        if (err) {
+            console.log(err)
+            res.sendStatus(500);
+        }
+        console.log(colors.name)
+        res.send(colors)
+    })
+    
+});
+
+app.get("/addtofavorites", (req, res) => {
+    console.log(req.query.hex);
+    console.log(req.query.name);
+
+    jsonReader(favColorsConfigPath, (err, favColors) => {
+        if (err) {
+            console.log('Error reading file:', err)
+            return
+        }
+        favColors['colors'].push({hex: req.query.hex, name: req.query.name})
+        fs.writeFile(favColorsConfigPath, JSON.stringify(favColors), (err) => {
+            if (err) console.log('Error writing file:', err)
+        })
+    })
+
+    res.sendStatus(200)
+
+});
+
 app.get("/color", (req, res) => {
     console.log(req.query.hex);
     var command = spawn('/usr/local/bin/leds', [ "--hex", req.query.hex ]);
@@ -65,3 +98,18 @@ app.get("/color", (req, res) => {
 app.listen(port, () => {
     console.log(`Listening to requests on http://localhost:${port}`);
 });
+
+
+function jsonReader(filePath, cb) {
+    fs.readFile(filePath, (err, fileData) => {
+        if (err) {
+            return cb && cb(err)
+        }
+        try {
+            const object = JSON.parse(fileData)
+            return cb && cb(null, object)
+        } catch(err) {
+            return cb && cb(err)
+        }
+    })
+}

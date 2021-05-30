@@ -1,0 +1,28 @@
+{
+    "colors": [
+        {
+            "hex": "#00ad09",
+            "name": "ufo green"
+        },
+        {
+            "hex": "#16640a",
+            "name": "easy green"
+        },
+        {
+            "hex": "#0b641a",
+            "name": "easy green 2"
+        },
+        {
+            "hex": "#150062",
+            "name": "violet"
+        },
+        {
+            "hex": "#00955c",
+            "name": "turkus"
+        },
+        {
+            "hex": "#4da109",
+            "name": "vivid green"
+        }
+    ]
+}

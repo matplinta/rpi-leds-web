@@ -22,7 +22,7 @@ To install, simply run `sudo ./install.sh` - root privileges are required to add
 ### Bash completion
 Cli supports bash tab completion on `-p color` command:`leds -p <TAB>`.
 
-Colors defined in the colors.conf file, at /home/pi/.config/leds/colours.conf will be autocompleted with the usage of [bash completions](https://github.com/scop/bash-completion).
+Colors defined in the colors.conf file, at /home/pi/.config/leds/favcolors.conf will be autocompleted with the usage of [bash completions](https://github.com/scop/bash-completion).
 
 Colors specified in the colors.conf config file should follow the specified below convention: 
 ```
