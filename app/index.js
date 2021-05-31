@@ -4,7 +4,7 @@ const { spawn } = require('child_process');
 
 const app = express();
 const port = process.env.PORT || "8000";
-const favColorsConfigPath = '/home/pi/.config/leds/favcolors.json '
+const favColorsConfigPath = '/home/pi/.config/leds/favcolors.json'
 
 app.use(express.static(__dirname));
 
